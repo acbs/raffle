@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <div class="bubbles">
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+      <div class="bubble"></div>
+    </div>
+
+    <div class="header">
+      <img
+        class="responsive"
+        src="https://raw.githubusercontent.com/acbs/raffle/main/assets/header-v1.png"
+        alt="Header mage"
+      />
+    </div>
+
+    <div class="wrapper">
+      <div class="summary-container margin-bottom">
+        <p class="title margin-right">Prêmio: Caixa de Som JBL GO Essential</p>
+        <p class="title margin-left">Data do sorteio: 03/08</p>
+      </div>
+
+      <div id="button-container" class="content"></div>
+
+      <div class="summary-container margin-top">
+        <p class="description">
+          Escolha um número de 00 a 99.
+          <br />
+          <br />
+          Nº PAR - Fralda M
+          <br />
+          <br />
+          Nº ÍMPAR - Fralda G
+          <br />
+          <br />
+          Cada número vale um pacote de fralda ou pix no valor da fralda.
+          <br />
+          <br />
+          Chave pix: CPF 101.457.554-01 (Ilma da Paz / Nubank)
+        </p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <img
+        style="display: flex"
+        src="https://raw.githubusercontent.com/acbs/raffle/main/assets/footer.png"
+        alt="Footer image"
+      />
+    </div>
+
+    <div id="form-container" class="form-container">
+      <form id="form">
+        <h2>Preencha o formulário</h2>
+
+        <div class="field">
+          <label for="button-number">Número Escolhido</label>
+          <input readonly type="text" id="numberId" name="numberId" />
+        </div>
+
+        <div class="field">
+          <label for="name">Nome</label>
+          <input
+            required
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Informe seu nome"
+          />
+        </div>
+
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input
+            required
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Informe seu e-mail"
+          />
+        </div>
+
+        <div class="field">
+          <label for="name">Telefone</label>
+          <input
+            required
+            type="text"
+            id="phone"
+            name="phone"
+            placeholder="Informe seu telefone"
+          />
+        </div>
+
+        <div class="field">
+          <div>
+            <input
+              checked
+              id="diaper"
+              name="type"
+              type="radio"
+              value="Fralda"
+            />
+            <label for="diaper">Fralda</label>
+
+            <input id="pix" name="type" type="radio" value="Pix" />
+            <label for="pix">Pix</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="notes">Informações adicionais</label>
+          <input
+            id="notes"
+            name="notes"
+            placeholder="Qualquer informação adicional"
+          />
+        </div>
+
+        <div class="form-action">
+          <button class="button is-danger" type="button" onclick="closeForm()">
+            Cancelar
+          </button>
+          <button id="submit-button" class="button is-primary" type="submit">
+            Enviar
+          </button>
+        </div>
+      </form>
+
+      <div id="message" class="message"></div>
+    </div>
+
+    <script>
+      const buttonContainer = document.getElementById("button-container");
+
+      for (let i = 0; i < 100; i += 10) {
+        const row = document.createElement("div");
+        row.className = "row";
+
+        for (let j = i; j < i + 10; j++) {
+          const numberId = String(j).padStart(2, "0");
+
+          const button = document.createElement("button");
+          button.id = `button${numberId}`;
+          button.className = `button button${numberId}`;
+
+          const data = document.createElement("i");
+          data.id = `data${numberId}`;
+          data.className = "display-none";
+          data.innerText = numberId;
+
+          const spin = document.createElement("i");
+          spin.id = `spin${numberId}`;
+          spin.className = "fa fa-spinner fa-spin";
+
+          button.appendChild(data);
+          button.appendChild(spin);
+          row.appendChild(button);
+        }
+
+        buttonContainer.appendChild(row);
+      }
+
+      function getDate() {
+        fetch(
+          "https://script.google.com/macros/s/AKfycbzHbSJkNBqqaoUVY_AXCvjK526MjdThLk9v9nY_Aq3tcLXVK4Nd48AFgN9Thx2EBmLg/exec",
+          {
+            redirect: "follow",
+            method: "GET",
+          }
+        )
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              handleError("Falha ao carregar os dados.");
+            }
+          })
+          .then((data) => {
+            handleResponse(data);
+          })
+          .catch((error) => {
+            console.error(error);
+            handleError("Ocorreu um erro ao carregar os dados.");
+          });
+      }
+
+      function handleError(message) {
+        alert(message);
+        location.reload();
+      }
+
+      function handleResponse(data) {
+        for (let i = 0; i < 100; i++) {
+          const numberId = i.toString().padStart(2, "0");
+          const buttonElement = document.getElementById(`button${numberId}`);
+          if (buttonElement) {
+            const some = data?.some((el) => el === i);
+
+            if (some) {
+              buttonElement.className = `${buttonElement.className} unavailable`;
+            } else {
+              buttonElement.addEventListener("click", function () {
+                openForm(numberId);
+              });
+            }
+
+            const dataElement = document.getElementById(`data${numberId}`);
+            dataElement.className = "";
+            const spinElement = document.getElementById(`spin${numberId}`);
+            spinElement.className = "display-none";
+          }
+        }
+      }
+
+      function openForm(buttonId) {
+        removeSelectedItem();
+        document.getElementById("numberId").value = buttonId;
+        document.getElementById("form-container").style.display = "block";
+        const buttonElement = document.getElementById(`button${buttonId}`);
+        buttonElement.className = `${buttonElement.className} unavailable`;
+      }
+
+      function closeForm() {
+        document.getElementById("form-container").style.display = "none";
+        removeSelectedItem();
+      }
+
+      function removeSelectedItem() {
+        const numberId = document.getElementById("numberId").value;
+        if (!numberId) return;
+
+        const buttonElement = document.getElementById(`button${numberId}`);
+        if (buttonElement.classList.contains("unavailable")) {
+          buttonElement.classList.remove("unavailable");
+        }
+      }
+
+      document.getElementById("form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        document.getElementById("message").textContent = "Enviando...";
+        document.getElementById("message").style.display = "block";
+        document.getElementById("submit-button").disabled = true;
+
+        var formData = new FormData(this);
+        var keyValuePairs = [];
+        for (var pair of formData.entries()) {
+          keyValuePairs.push(pair[0] + "=" + pair[1]);
+        }
+
+        var formDataString = keyValuePairs.join("&");
+
+        fetch(
+          "https://script.google.com/macros/s/AKfycbzHbSJkNBqqaoUVY_AXCvjK526MjdThLk9v9nY_Aq3tcLXVK4Nd48AFgN9Thx2EBmLg/exec",
+          {
+            redirect: "follow",
+            method: "POST",
+            body: formDataString,
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8",
+            },
+          }
+        )
+          .then(function (response) {
+            if (response) {
+              return response;
+            } else {
+              throw new Error("Falha ao enviar o formulário.");
+            }
+          })
+          .then((data) => {
+            document.getElementById("message").textContent =
+              "Dados enviados com sucesso!";
+            document.getElementById("message").style.display = "block";
+            document.getElementById("message").style.backgroundColor = "green";
+            document.getElementById("message").style.color = "beige";
+            document.getElementById("submit-button").disabled = false;
+
+            const numberId = document.getElementById("numberId").value;
+            const button = document.getElementById(`button${numberId}`);
+            button.className = `${button.className} unavailable`;
+
+            document.getElementById("form").reset();
+
+            setTimeout(() => {
+              document.getElementById("message").textContent = "";
+              document.getElementById("message").style.display = "none";
+              closeForm();
+            }, 2000);
+          })
+          .catch((error) => {
+            console.error(error);
+            document.getElementById("message").textContent =
+              "Ocorreu um erro ao enviar o formulário.";
+            document.getElementById("message").style.display = "block";
+          });
+      });
+
+      window.onload = getDate;
+    </script>
+  </body>
+</html>
