@@ -77,25 +77,16 @@ function removeMask(phone) {
 }
 
 const doPost = (request = {}) => {
-  try {
-    const { postData: { contents, type } = {} } = request;
-    if (type !== "application/x-www-form-urlencoded") {
-      throw new Error("Invalid content type");
-    }
-    var data = parseFormData(contents);
-    appendToGoogleSheet(data);
-    return ContentService.createTextOutput(
-      JSON.stringify({ success: true })
-    ).setMimeType(ContentService.MimeType.JSON);
-  } catch (error) {
-    return ContentService.createTextOutput(
-      JSON.stringify({ error: error.message })
-    ).setMimeType(ContentService.MimeType.JSON);
-  }
+  const { postData: { contents, type } = {} } = request;
+  var data = parseFormData(contents);
+  appendToGoogleSheet(data);
+  return ContentService.createTextOutput(contents).setMimeType(
+    ContentService.MimeType.JSON
+  );
 };
 
 function parseFormData(postData) {
-  var data = {};
+  var data = [];
   var parameters = postData.split("&");
   for (var i = 0; i < parameters.length; i++) {
     var keyValue = parameters[i].split("=");
@@ -111,6 +102,6 @@ function appendToGoogleSheet(data) {
     data[TIME_STAMP_COLUMN_NAME] = currentDate.toLocaleString("pt-BR", options);
   }
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  var rowData = headers.map((headerFld) => data[headerFld] || "");
+  var rowData = headers.map((headerFld) => data[headerFld]);
   sheet.appendRow(rowData);
 }
