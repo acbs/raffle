@@ -23,6 +23,13 @@ body {
   margin-top: 20px;
 }
 
+.icon-profile {
+  font-size: 30px;
+  position: absolute;
+  left: 90%;
+  z-index: 999;
+}
+
 .wrapper {
   display: flex;
   flex: 1;

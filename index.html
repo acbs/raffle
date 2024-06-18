@@ -34,6 +34,10 @@
         src="https://raw.githubusercontent.com/acbs/raffle/main/assets/header-v1.png"
         alt="Header mage"
       />
+      <i
+        class="icon-profile fa-solid fa-user"
+        onclick="openFormMyNumbers()"
+      ></i>
     </div>
 
     <div class="wrapper">
@@ -144,7 +148,46 @@
       <div id="message" class="message"></div>
     </div>
 
+    <div id="form-my-numbers-container" class="form-container">
+      <form id="form-my-numbers">
+        <h2>Informeu seu telefone</h2>
+
+        <div class="field">
+          <input
+            class="input"
+            required
+            type="tel"
+            id="phone"
+            name="phone"
+            placeholder="Número telefone"
+          />
+        </div>
+
+        <div class="form-action">
+          <button
+            class="button is-danger"
+            type="button"
+            onclick="closeFormMyNumbers()"
+          >
+            Voltar
+          </button>
+          <button
+            id="submit-button-my-numbers"
+            class="button is-primary"
+            type="submit"
+          >
+            Consultar
+          </button>
+        </div>
+      </form>
+
+      <div id="message-my-numbers" class="message"></div>
+    </div>
+
     <script>
+      const baseUrl =
+        "https://script.google.com/macros/s/AKfycbzHbSJkNBqqaoUVY_AXCvjK526MjdThLk9v9nY_Aq3tcLXVK4Nd48AFgN9Thx2EBmLg/exec";
+
       const buttonContainer = document.getElementById("button-container");
 
       for (let i = 0; i < 100; i += 10) {
@@ -176,13 +219,10 @@
       }
 
       function getDate() {
-        fetch(
-          "https://script.google.com/macros/s/AKfycbzHbSJkNBqqaoUVY_AXCvjK526MjdThLk9v9nY_Aq3tcLXVK4Nd48AFgN9Thx2EBmLg/exec",
-          {
-            redirect: "follow",
-            method: "GET",
-          }
-        )
+        fetch(baseUrl, {
+          redirect: "follow",
+          method: "GET",
+        })
           .then((response) => {
             if (response.ok) {
               return response.json();
@@ -264,17 +304,14 @@
 
         var formDataString = keyValuePairs.join("&");
 
-        fetch(
-          "https://script.google.com/macros/s/AKfycbzHbSJkNBqqaoUVY_AXCvjK526MjdThLk9v9nY_Aq3tcLXVK4Nd48AFgN9Thx2EBmLg/exec",
-          {
-            redirect: "follow",
-            method: "POST",
-            body: formDataString,
-            headers: {
-              "Content-Type": "text/plain;charset=utf-8",
-            },
-          }
-        )
+        fetch(baseUrl, {
+          redirect: "follow",
+          method: "POST",
+          body: formDataString,
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8",
+          },
+        })
           .then(function (response) {
             if (response) {
               return response;
@@ -327,6 +364,75 @@
           }
         );
       }
+
+      function openFormMyNumbers() {
+        document.getElementById("form-my-numbers").reset();
+        document.getElementById("form-my-numbers-container").style.display =
+          "block";
+      }
+
+      function closeFormMyNumbers() {
+        document.getElementById("form-my-numbers-container").style.display =
+          "none";
+        document.getElementById("message-my-numbers").textContent = "";
+        document.getElementById("message-my-numbers").style.display = "none";
+      }
+
+      document
+        .getElementById("form-my-numbers")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          if (!this?.phone?.value) return;
+
+          if (this?.phone?.value.length < 8) {
+            document.getElementById("message-my-numbers").textContent =
+              "Número de telefone inválido.";
+            document.getElementById("message-my-numbers").style.display =
+              "block";
+
+            return;
+          }
+
+          document.getElementById("message-my-numbers").textContent =
+            "Consultando...";
+          document.getElementById("message-my-numbers").style.display = "block";
+          document.getElementById("submit-button-my-numbers").disabled = true;
+
+          const encodedPhone = encodeURIComponent(this?.phone?.value);
+
+          fetch(`${baseUrl}?phone=${encodedPhone}`, {
+            redirect: "follow",
+            method: "GET",
+          })
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                return {};
+              }
+            })
+            .then((data) => {
+              if (data && Array.isArray(data) && data.length > 0) {
+                document.getElementById("message-my-numbers").textContent =
+                  "Seu(s) número(s): " + data;
+              } else {
+                document.getElementById("message-my-numbers").textContent =
+                  "Nenhum número encontrado.";
+              }
+
+              document.getElementById(
+                "submit-button-my-numbers"
+              ).disabled = false;
+            })
+            .catch((error) => {
+              console.error(error);
+              document.getElementById("message-my-numbers").textContent =
+                "Ocorreu um erro ao consultar.";
+              document.getElementById("message-my-numbers").style.display =
+                "block";
+            });
+        });
 
       window.onload = getDate;
     </script>
